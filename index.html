@@ -1,0 +1,460 @@
+<title>Расписание капель</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;800&display=swap">
+<style>
+/* План: спокойная «клиническая» палитра — тёплый нейтральный фон, тил-акцент для времени,
+   4 служебных цвета препаратов (точки), янтарный только для «пропущено».
+   Тип: Golos Text — гротеск, сделанный для кириллицы; вес 800 для времени, tabular-nums. */
+:root{
+  --bg:#F2F6F4; --surface:#FFFFFF; --surface2:#E9F0ED; --fg:#182220; --muted:#5D6D68;
+  --line:#DCE5E1; --accent:#0E7C66; --on-accent:#FFFFFF;
+  --amber:#A96B00; --amber-bg:#FBF2E2;
+  --d-sign:#4A5FD3; --d-oph:#1E93C9; --d-brox:#C27A16; --d-acyc:#C93A6B;
+  --tick:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12l5 5L20 7'/%3E%3C/svg%3E");
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1513; --surface:#181F1D; --surface2:#212C29; --fg:#E7EFEC; --muted:#9AABA5;
+    --line:#2B3A36; --accent:#4CC3A5; --on-accent:#062019;
+    --amber:#E3A855; --amber-bg:#2C2414;
+    --d-sign:#8E9CF2; --d-oph:#63B9E8; --d-brox:#E0A458; --d-acyc:#EA7FA3;
+    --tick:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23062019' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12l5 5L20 7'/%3E%3C/svg%3E");
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1513; --surface:#181F1D; --surface2:#212C29; --fg:#E7EFEC; --muted:#9AABA5;
+  --line:#2B3A36; --accent:#4CC3A5; --on-accent:#062019;
+  --amber:#E3A855; --amber-bg:#2C2414;
+  --d-sign:#8E9CF2; --d-oph:#63B9E8; --d-brox:#E0A458; --d-acyc:#EA7FA3;
+  --tick:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23062019' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12l5 5L20 7'/%3E%3C/svg%3E");
+  color-scheme: dark;
+}
+
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:"Golos Text","Segoe UI",system-ui,sans-serif; font-size:15px; line-height:1.45;
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+  padding-right:max(16px, env(safe-area-inset-right,0px));
+}
+body::before{
+  content:""; position:fixed; inset:0 0 auto 0; height:env(safe-area-inset-top,0px);
+  background:var(--surface); z-index:10;
+}
+a{ color:var(--accent); }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+
+.wrap{ max-width:620px; margin:0 auto; }
+
+.top{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:5;
+  background:var(--surface); border-bottom:1px solid var(--line);
+}
+.top .wrap{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding-block:11px; }
+.brand{ font-weight:800; font-size:16px; letter-spacing:-.01em; }
+#dayline{ font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; text-align:right; }
+.bar{ height:3px; background:var(--line); }
+.bar i{ display:block; height:100%; background:var(--accent); width:0; transition:width .4s; }
+
+main.wrap{ padding-block:16px 8px; }
+
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px;
+}
+h2.sec{
+  font-size:12px; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--muted); margin:22px 2px 10px;
+}
+
+/* Герой «сейчас / дальше» */
+.hero{ border-left:4px solid var(--accent); }
+.hero .kicker{
+  font-size:11.5px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--accent);
+}
+.hero .big{ font-size:42px; font-weight:800; line-height:1.08; font-variant-numeric:tabular-nums; letter-spacing:-.01em; margin-top:2px; }
+.hero .sub{ color:var(--muted); margin-top:4px; font-size:14px; }
+.seq{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; margin-top:14px; }
+.chip{
+  display:inline-flex; align-items:center; gap:7px; background:var(--surface2);
+  border-radius:999px; padding:6px 11px; font-size:13.5px; font-weight:600;
+}
+.chip .t{ color:var(--muted); font-weight:500; font-variant-numeric:tabular-nums; }
+.seq .gap{ color:var(--muted); font-size:12px; font-weight:500; white-space:nowrap; }
+.dot{ width:10px; height:10px; border-radius:50%; background:var(--c,var(--muted)); flex:none; }
+
+/* Сеансы */
+#timeline{ display:grid; gap:10px; }
+.sess{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:13px 15px; }
+.sess.now{ border-left:4px solid var(--accent); }
+.sess.mini{ background:var(--surface2); border-color:transparent; padding-block:9px; }
+.sess-head{ display:flex; align-items:baseline; gap:10px; }
+.sess-head .t{ font-size:17px; font-weight:800; font-variant-numeric:tabular-nums; }
+.sess-head .lbl{ font-weight:600; font-size:14px; }
+.sess-head .tag{ font-size:11.5px; color:var(--muted); font-weight:500; }
+.sess-head .cnt{
+  margin-left:auto; font-size:12.5px; font-weight:600; color:var(--muted);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.sess.alldone .sess-head .lbl, .sess.alldone .sess-head .t{ color:var(--muted); }
+
+.item{ display:flex; align-items:center; gap:10px; padding:8px 6px; margin:0 -6px; border-radius:9px; }
+.item label{ display:flex; align-items:center; gap:10px; flex:1; min-width:0; cursor:pointer; }
+.item input{
+  appearance:none; -webkit-appearance:none; width:22px; height:22px; flex:none;
+  border:2px solid var(--line); border-radius:7px; background:var(--surface); cursor:pointer; margin:0;
+}
+.item input:checked{ background:var(--accent) var(--tick) center/13px no-repeat; border-color:var(--accent); }
+.item .nm{ font-weight:600; font-size:14.5px; }
+.item .nm em{ display:block; font-style:normal; font-weight:400; font-size:12px; color:var(--muted); margin-top:1px; }
+.item .eye{
+  flex:none; font-size:11px; font-weight:600; color:var(--muted);
+  border:1px solid var(--line); border-radius:999px; padding:2px 7px; white-space:nowrap;
+}
+.item .it{ margin-left:auto; flex:none; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; }
+.item.done .nm{ color:var(--muted); text-decoration:line-through; }
+.item.done .nm em{ text-decoration:none; }
+.item.done .dot{ opacity:.35; }
+.item.missed{ background:var(--amber-bg); }
+.item.missed .miss{ flex:none; font-size:11px; font-weight:600; color:var(--amber); white-space:nowrap; }
+.gapr{ margin:1px 0 1px 32px; border-top:1px dashed var(--line); }
+.gapr span{
+  position:relative; top:-8px; background:var(--surface); padding-right:7px;
+  font-size:11px; color:var(--muted);
+}
+.sess.mini .gapr span{ background:var(--surface2); }
+
+/* Настройки */
+.settings{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.settings label{ font-size:13.5px; color:var(--muted); }
+.settings input[type="time"]{
+  font:inherit; font-weight:600; font-variant-numeric:tabular-nums; color:var(--fg);
+  background:var(--surface2); border:1px solid var(--line); border-radius:9px; padding:6px 10px;
+}
+.settings .hint{ flex-basis:100%; font-size:12.5px; color:var(--muted); }
+.btn{
+  font:inherit; font-size:13px; font-weight:600; color:var(--muted);
+  background:none; border:1px solid var(--line); border-radius:999px; padding:6px 12px; cursor:pointer;
+}
+.btn.armed{ color:var(--amber); border-color:var(--amber); }
+
+/* Полоса курса */
+.strip{ display:flex; gap:4px; }
+.cell{
+  flex:1; min-width:0; text-align:center; border-radius:9px; padding:8px 0 6px;
+  font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums; background:var(--surface2);
+}
+.cell.p1{ background:color-mix(in srgb, var(--d-sign) 16%, var(--surface)); }
+.cell.today{ outline:2px solid var(--accent); outline-offset:1px; font-weight:800; }
+.cell .m{ display:block; font-size:9.5px; font-weight:500; color:var(--muted); letter-spacing:.05em; }
+.cell.acyc::after{ content:""; display:block; width:4px; height:4px; border-radius:50%; background:var(--d-acyc); margin:3px auto 0; }
+.legend{ display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:10px; font-size:12.5px; color:var(--muted); }
+.legend i{ display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+.legend .l1 i{ background:color-mix(in srgb, var(--d-sign) 16%, var(--surface)); outline:1px solid var(--d-sign); outline-offset:-1px; }
+.legend .l2 i{ background:var(--surface2); outline:1px solid var(--line); outline-offset:-1px; }
+.legend .l3 i{ background:var(--d-acyc); border-radius:50%; width:6px; height:6px; vertical-align:0; }
+
+/* Правила */
+.rules{ display:grid; gap:10px; }
+.rule{ display:flex; gap:11px; font-size:14px; }
+.rule b{ font-weight:600; }
+.rule .n{
+  flex:none; width:22px; height:22px; border-radius:50%; background:var(--surface2);
+  font-size:12px; font-weight:600; color:var(--muted);
+  display:flex; align-items:center; justify-content:center; margin-top:1px;
+}
+.rule .end{ color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+footer{ margin:26px 2px 18px; font-size:12.5px; color:var(--muted); }
+
+@media (prefers-reduced-motion: reduce){ .bar i{ transition:none; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <span class="brand">Расписание капель</span>
+    <span id="dayline"></span>
+  </div>
+  <div class="bar"><i id="prog"></i></div>
+</header>
+
+<main class="wrap">
+  <section class="card hero" id="hero"></section>
+
+  <h2 class="sec">Сегодня</h2>
+  <div id="day1note" class="card" style="padding:12px 15px; font-size:13.5px; color:var(--muted); border-left:4px solid var(--d-brox); margin-bottom:10px;" hidden>
+    Курс начат вечером 29 октября — утренние приёмы сегодня не навёрстываются. Сегодня только ночной сеанс, полный график — с завтрашнего утра.
+  </div>
+  <div id="timeline"></div>
+
+  <h2 class="sec">Настройки</h2>
+  <div class="card settings">
+    <label for="wake">Подъём</label>
+    <input type="time" id="wake" value="09:00">
+    <button type="button" class="btn" id="reset">Сбросить сегодняшние отметки</button>
+    <span class="hint">Время первого приёма считается от подъёма, остальные — распределяются по дню.</span>
+  </div>
+
+  <h2 class="sec">Курс · 29 октября — 7 ноября</h2>
+  <div class="card">
+    <div class="strip" id="strip"></div>
+    <div class="legend">
+      <span class="l1"><i></i>Сигницеф 6× в день</span>
+      <span class="l2"><i></i>Сигницеф 4× в день</span>
+      <span class="l3"><i></i>мазь · до 4 ноября</span>
+    </div>
+  </div>
+
+  <h2 class="sec">Правила</h2>
+  <div class="card rules">
+    <div class="rule"><span class="n">1</span><div><b>Между разными препаратами — пауза 5–10 минут.</b> Мазь — всегда последней.</div></div>
+    <div class="rule"><span class="n">2</span><div><b>Л</b> — левый глаз, <b>Л+П</b> — оба глаза (Офтальмоферон капается в оба).</div></div>
+    <div class="rule"><span class="n">3</span><div>Руки вымыть. Кончиком флакона и тюбика не касаться глаза и ресниц.</div></div>
+    <div class="rule"><span class="n">4</span><div>Линзы на время лечения не носить — только очки.</div></div>
+    <div class="rule"><span class="n">5</span><div>Водопроводной воде в глаза не бывать <span class="end">до 1 ноября</span>. Баня, сауна, бассейн — <span class="end">до 4 ноября</span>.</div></div>
+    <div class="rule"><span class="n">6</span><div>Боль усилилась, светобоязнь выросла, зрение упало — сразу свяжись с клиникой, не жди окончания курса.</div></div>
+  </div>
+
+  <footer>
+    Составлено по протоколу приёма офтальмолога от 29.10.2026 («Ситилаб»). Это напоминание, а не замена назначений врача. После 7 ноября запишись на контрольный осмотр.
+  </footer>
+</main>
+
+<script>
+(function(){
+"use strict";
+var START = new Date(2026, 9, 29);      // 29 октября 2026 — первый день курса
+var TOTAL = 10;                          // последний день: 7 ноября
+var LS = "glaz.kapli.v1";
+var $ = function(id){ return document.getElementById(id); };
+
+var MEDS = {
+  sign: { name: "Сигницеф",    sub: "капли · 1 капля",                       eye: "Л",   v: "--d-sign" },
+  oph:  { name: "Офтальмоферон", sub: "капли · 1 капля",                     eye: "Л+П", v: "--d-oph"  },
+  brox: { name: "Броксинак",   sub: "капли · 1 капля",                       eye: "Л",   v: "--d-brox" },
+  acyc: { name: "Ацикловир 3%", sub: "мазь · полоска ~1 см за нижнее веко",  eye: "Л",   v: "--d-acyc" }
+};
+
+function loadState(){
+  try { var s = JSON.parse(localStorage.getItem(LS) || "{}"); return s && typeof s === "object" ? s : {}; }
+  catch(e){ return {}; }
+}
+function save(){ try { localStorage.setItem(LS, JSON.stringify(S)); } catch(e){} }
+var S = loadState();
+
+function pad(n){ return (n < 10 ? "0" : "") + n; }
+function dateKey(d){ return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); }
+function dayIndex(){
+  var t = new Date(); t.setHours(0,0,0,0);
+  var d = Math.round((t - START) / 86400000) + 1;
+  return d < 1 ? 1 : d;
+}
+function toMin(hhmm){ var p = hhmm.split(":"); return (+p[0]) * 60 + (+p[1]); }
+function fmt(m){ m = ((m % 1440) + 1440) % 1440; return Math.floor(m/60) + ":" + pad(m % 60); }
+
+function getWake(){
+  var w = S.wake;
+  if (typeof w === "string" && /^\d{1,2}:\d{2}$/.test(w)) return pad(+w.split(":")[0]) + ":" + w.split(":")[1];
+  return "09:00";
+}
+
+function itemsFor(kind, day){
+  var it = [];
+  it.push({ med: MEDS.sign, off: 0 });
+  if (kind === "mini") return it;
+  it.push({ med: MEDS.oph, off: 7 });
+  if (kind === "night") it.push({ med: MEDS.brox, off: 15 });
+  if (day <= 7) it.push({ med: MEDS.acyc, off: kind === "night" ? 25 : 15 });
+  return it;
+}
+
+function buildSessions(day, wakeMin){
+  var defs;
+  if (day <= 1){
+    defs = [[810, "Ночь", "night"]];
+  } else if (day <= 3){
+    defs = [[15,"Утро","full"],[165,"Сигницеф","mini"],[315,"День","full"],[465,"Сигницеф","mini"],[585,"Вечер","full"],[810,"Ночь","night"]];
+  } else {
+    defs = [[15,"Утро","full"],[315,"День","full"],[585,"Вечер","full"],[810,"Ночь","night"]];
+  }
+  var out = [], prev = -9999;
+  defs.forEach(function(d){
+    var t = Math.min(Math.max(wakeMin + d[0], prev + 40), 1395); // не позже 23:15
+    if (t < prev + 40) t = prev + 40;
+    out.push({ t: t, label: d[1], kind: d[2] });
+    prev = t;
+  });
+  out.forEach(function(s, si){
+    s.items = itemsFor(s.kind, day).map(function(it, ii){
+      return { med: it.med, off: it.off, t: s.t + it.off, id: si + "-" + ii };
+    });
+  });
+  return out;
+}
+
+function checks(){ var dk = dateKey(new Date()); if (!S.checks) S.checks = {}; if (!S.checks[dk]) S.checks[dk] = {}; return S.checks[dk]; }
+function isChecked(id){ var c = S.checks && S.checks[dateKey(new Date())]; return !!(c && c[id]); }
+
+function esc(s){ return s; } // контент статичный
+
+function itemHTML(it, missed){
+  var cls = "item" + (isChecked(it.id) ? " done" : "") + (missed ? " missed" : "");
+  var miss = missed && !isChecked(it.id) ? '<span class="miss">пропущено?</span>' : "";
+  return '<div class="' + cls + '" data-id="' + it.id + '">' +
+    '<label><input type="checkbox" data-id="' + it.id + '"' + (isChecked(it.id) ? " checked" : "") + '>' +
+    '<span class="dot" style="--c:var(' + it.med.v + ')"></span>' +
+    '<span class="nm">' + it.med.name + "<em>" + it.med.sub + "</em></span>" +
+    '<span class="eye">' + it.med.eye + "</span></label>" +
+    '<span class="it">' + fmt(it.t) + "</span>" + miss + "</div>";
+}
+
+function renderHero(day, sessions, nowMin){
+  var h = $("hero");
+  if (day > TOTAL){
+    h.innerHTML = '<div class="kicker">Курс завершён</div>' +
+      '<div class="big">Готово</div>' +
+      '<div class="sub">10 дней позади. Запишись на контрольный осмотр к офтальмологу — врачу нужно посмотреть глаз после лечения.</div>';
+    return;
+  }
+  var flat = [];
+  sessions.forEach(function(s, si){ s.items.forEach(function(it){ flat.push({ it: it, si: si, s: s }); }); });
+  var next = null;
+  for (var i = 0; i < flat.length; i++){
+    if (!isChecked(flat[i].it.id)){ next = flat[i]; break; }
+  }
+  if (!next){
+    var tmr = day < TOTAL ? buildSessions(day + 1, toMin(getWake()))[0] : null;
+    h.innerHTML = '<div class="kicker">На сегодня всё</div>' +
+      '<div class="big">✓ ' + flat.length + " из " + flat.length + "</div>" +
+      '<div class="sub">' + (tmr ? "Дальше — завтра, " + tmr.label.toLowerCase() + " в " + fmt(tmr.t) + "." : "Это был последний день.") + "</div>";
+    return;
+  }
+  var seq = "";
+  next.s.items.forEach(function(it, k){
+    if (k > 0) seq += '<span class="gap">· ' + (it.off - next.s.items[k-1].off) + " мин ·</span>";
+    seq += '<span class="chip"><span class="dot" style="--c:var(' + it.med.v + ')"></span>' + it.med.name +
+           ' <span class="t">' + fmt(it.t) + "</span></span>";
+  });
+  if (next.it.t <= nowMin + 10){
+    h.innerHTML = '<div class="kicker">Сейчас · сеанс «' + next.s.label + '»</div>' +
+      '<div class="big">' + next.it.med.name + "</div>" +
+      '<div class="sub">По порядку, с паузами. Отмечай галочками.</div>' +
+      '<div class="seq">' + seq + "</div>";
+  } else {
+    var d = next.it.t - nowMin, dm = d % 60, dh = Math.floor(d / 60);
+    var cd = dh > 0 ? "через " + dh + " ч " + pad(dm) + " мин" : "через " + dm + " мин";
+    h.innerHTML = '<div class="kicker">Дальше · ' + cd + "</div>" +
+      '<div class="big">' + fmt(next.it.t) + "</div>" +
+      '<div class="sub">Сеанс «' + next.s.label + "» · " + next.it.med.name + "</div>" +
+      '<div class="seq">' + seq + "</div>";
+  }
+}
+
+function renderTimeline(day, sessions, nowMin){
+  var el = $("timeline"), html = "";
+  var flatDone = 0, flatAll = 0;
+  var firstUncheckedSi = -1;
+  sessions.forEach(function(s, si){
+    var undone = s.items.filter(function(it){ return !isChecked(it.id); }).length;
+    if (undone > 0 && firstUncheckedSi < 0) firstUncheckedSi = si;
+  });
+  sessions.forEach(function(s, si){
+    var doneCnt = s.items.length - s.items.filter(function(it){ return !isChecked(it.id); }).length;
+    flatDone += doneCnt; flatAll += s.items.length;
+    html += '<div class="sess' + (s.kind === "mini" ? " mini" : "") +
+      (si === firstUncheckedSi ? " now" : "") + (doneCnt === s.items.length ? " alldone" : "") + '">';
+    html += '<div class="sess-head"><span class="t">' + fmt(s.t) + "</span>" +
+      '<span class="lbl">' + s.label + "</span>" +
+      (s.kind === "mini" ? '<span class="tag">только Сигницеф</span>' : "") +
+      '<span class="cnt">' + doneCnt + "/" + s.items.length + (doneCnt === s.items.length ? " ✓" : "") + "</span></div>";
+    s.items.forEach(function(it, k){
+      if (k > 0) html += '<div class="gapr"><span>пауза 5–10 мин</span></div>';
+      var missed = !isChecked(it.id) && it.t <= nowMin - 45;
+      html += itemHTML(it, missed);
+    });
+    html += "</div>";
+  });
+  el.innerHTML = html;
+  $("prog").style.width = flatAll ? Math.round(100 * flatDone / flatAll) + "%" : "0";
+}
+
+function renderStrip(day){
+  var html = "";
+  for (var i = 1; i <= TOTAL; i++){
+    var d = new Date(START.getFullYear(), START.getMonth(), START.getDate() + i - 1);
+    var num = d.getDate();
+    var m = num === 29 || num === 1 ? (num === 29 || d.getMonth() === 9 ? "окт" : "ноя") : "";
+    if (num === 1) m = "ноя";
+    if (num === 29) m = "окт";
+    html += '<div class="cell' + (i <= 3 ? " p1" : "") + (i === day ? " today" : "") + (i <= 7 ? " acyc" : "") + '">' +
+      num + (m ? '<span class="m">' + m + "</span>" : "") + "</div>";
+  }
+  $("strip").innerHTML = html;
+}
+
+function render(){
+  var day = dayIndex();
+  var now = new Date();
+  var nowMin = now.getHours() * 60 + now.getMinutes();
+  var wakeMin = toMin(getWake());
+  var sessions = buildSessions(day, wakeMin);
+
+  var dfmt = new Intl.DateTimeFormat("ru-RU", { weekday: "short", day: "numeric", month: "long" });
+  $("dayline").textContent = day > TOTAL
+    ? "курс завершён"
+    : "день " + day + " из " + TOTAL + " · " + dfmt.format(now);
+
+  $("day1note").hidden = day !== 1;
+
+  if (day > TOTAL){
+    $("timeline").innerHTML = "";
+    $("prog").style.width = "100%";
+  } else {
+    renderTimeline(day, sessions, nowMin);
+  }
+  renderHero(day, sessions, nowMin);
+  renderStrip(day);
+}
+
+/* отметки */
+$("timeline").addEventListener("change", function(e){
+  var id = e.target.getAttribute("data-id");
+  if (!id) return;
+  checks()[id] = e.target.checked ? 1 : 0;
+  save();
+  render();
+});
+
+/* подъём */
+$("wake").value = getWake();
+$("wake").addEventListener("change", function(){
+  S.wake = $("wake").value || "09:00";
+  save();
+  render();
+});
+
+/* сброс отметок — в два шага, без confirm() */
+var resetBtn = $("reset"), resetTimer = null;
+resetBtn.addEventListener("click", function(){
+  if (!resetBtn.classList.contains("armed")){
+    resetBtn.classList.add("armed");
+    resetBtn.textContent = "точно стереть?";
+    resetTimer = setTimeout(function(){
+      resetBtn.classList.remove("armed");
+      resetBtn.textContent = "Сбросить сегодняшние отметки";
+    }, 3500);
+  } else {
+    clearTimeout(resetTimer);
+    S.checks[dateKey(new Date())] = {};
+    save();
+    resetBtn.classList.remove("armed");
+    resetBtn.textContent = "Сбросить сегодняшние отметки";
+    render();
+  }
+});
+
+document.addEventListener("visibilitychange", function(){ if (!document.hidden) render(); });
+setInterval(render, 30000);
+render();
+})();
+</script>
