@@ -124,11 +124,24 @@ h2.sec{
 }
 .sess.mini .gapr span{ background:var(--surface2); }
 
+/* Навигация по дням */
+.daynav{ display:flex; align-items:center; gap:8px; margin:22px 2px 10px; }
+.daynav .sec{ margin:0; flex:1; }
+.navbtn{
+  font:inherit; font-size:20px; font-weight:600; line-height:1; color:var(--fg);
+  width:34px; height:34px; flex:none; border:1px solid var(--line); border-radius:10px;
+  background:var(--surface); cursor:pointer; padding-bottom:3px;
+}
+.navbtn:disabled{ opacity:.35; cursor:default; }
+.cellb{ appearance:none; -webkit-appearance:none; border:0; cursor:pointer; font:inherit; color:var(--fg); box-sizing:border-box; }
+.cell.view{ box-shadow: inset 0 -3px 0 var(--muted); }
+.cell.today{ outline:2px solid var(--accent); outline-offset:1px; font-weight:800; box-shadow:none; }
+
 /* Настройки */
 .settings{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
 .settings label{ font-size:13.5px; color:var(--muted); }
 .settings input[type="time"]{
-  font:inherit; font-weight:600; font-variant-numeric:tabular-nums; color:var(--fg);
+  font:inherit; font-size:16px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--fg);
   background:var(--surface2); border:1px solid var(--line); border-radius:9px; padding:6px 10px;
 }
 .settings .hint{ flex-basis:100%; font-size:12.5px; color:var(--muted); }
@@ -181,7 +194,12 @@ footer{ margin:26px 2px 18px; font-size:12.5px; color:var(--muted); }
 <main class="wrap">
   <section class="card hero" id="hero"></section>
 
-  <h2 class="sec">Сегодня</h2>
+  <div class="daynav">
+  <button type="button" class="navbtn" id="dprev" aria-label="Предыдущий день">‹</button>
+  <h2 class="sec" id="daytitle">Сегодня</h2>
+  <button type="button" class="btn" id="dtoday" hidden>Сегодня</button>
+  <button type="button" class="navbtn" id="dnext" aria-label="Следующий день">›</button>
+</div>
   <div id="day1note" class="card" style="padding:12px 15px; font-size:13.5px; color:var(--muted); border-left:4px solid var(--d-brox); margin-bottom:10px;" hidden>
     Курс начат вечером 29 октября — утренние приёмы сегодня не навёрстываются. Сегодня только ночной сеанс, полный график — с завтрашнего утра.
   </div>
@@ -241,6 +259,7 @@ function loadState(){
 }
 function save(){ try { localStorage.setItem(LS, JSON.stringify(S)); } catch(e){} }
 var S = loadState();
+var viewDay = 0; // 0 — сегодня, 1..10 — просмотр дня курса
 
 function pad(n){ return (n < 10 ? "0" : "") + n; }
 function dateKey(d){ return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); }
@@ -292,35 +311,60 @@ function buildSessions(day, wakeMin){
   return out;
 }
 
+function dayDate(d){ return new Date(START.getFullYear(), START.getMonth(), START.getDate() + d - 1); }
+function keyFor(d){ return dateKey(dayDate(d)); }
 function checks(){ var dk = dateKey(new Date()); if (!S.checks) S.checks = {}; if (!S.checks[dk]) S.checks[dk] = {}; return S.checks[dk]; }
-function isChecked(id){ var c = S.checks && S.checks[dateKey(new Date())]; return !!(c && c[id]); }
+function isChecked(d, id){ var c = S.checks && S.checks[keyFor(d)]; return !!(c && c[id]); }
 
 function esc(s){ return s; } // контент статичный
 
-function itemHTML(it, missed){
-  var cls = "item" + (isChecked(it.id) ? " done" : "") + (missed ? " missed" : "");
-  var miss = missed && !isChecked(it.id) ? '<span class="miss">пропущено?</span>' : "";
+function itemHTML(it, missed, day, editable){
+  var chk = isChecked(day, it.id);
+  var cls = "item" + (chk ? " done" : "") + (missed ? " missed" : "");
+  var miss = missed && !chk ? '<span class="miss">пропущено?</span>' : "";
   return '<div class="' + cls + '" data-id="' + it.id + '">' +
-    '<label><input type="checkbox" data-id="' + it.id + '"' + (isChecked(it.id) ? " checked" : "") + '>' +
+    '<label><input type="checkbox" data-id="' + it.id + '"' + (chk ? " checked" : "") + (editable ? "" : " disabled") + '>' +
     '<span class="dot" style="--c:var(' + it.med.v + ')"></span>' +
     '<span class="nm">' + it.med.name + "<em>" + it.med.sub + "</em></span>" +
     '<span class="eye">' + it.med.eye + "</span></label>" +
     '<span class="it">' + fmt(it.t) + "</span>" + miss + "</div>";
 }
 
-function renderHero(day, sessions, nowMin){
+function renderHero(day, sessions, nowMin, realDay){
   var h = $("hero");
-  if (day > TOTAL){
+  if (day === realDay && realDay > TOTAL){
     h.innerHTML = '<div class="kicker">Курс завершён</div>' +
       '<div class="big">Готово</div>' +
       '<div class="sub">10 дней позади. Запишись на контрольный осмотр к офтальмологу — врачу нужно посмотреть глаз после лечения.</div>';
+    return;
+  }
+  if (day !== realDay){
+    var cnt = 0, done = 0;
+    sessions.forEach(function(s){ s.items.forEach(function(it){ cnt++; if (isChecked(day, it.id)) done++; }); });
+    var f = sessions[0];
+    var phase = day <= 3 ? "Сигницеф 6× в день" : "Сигницеф 4× в день";
+    if (day >= 8) phase += " · без мази";
+    var dstr = new Intl.DateTimeFormat("ru-RU", { weekday: "long", day: "numeric", month: "long" }).format(dayDate(day));
+    var kicker = day === realDay + 1 ? "Завтра · " + dstr : dstr;
+    var seq = "";
+    f.items.forEach(function(it, k){
+      if (k > 0) seq += '<span class="gap">· ' + (it.off - f.items[k-1].off) + " мин ·</span>";
+      seq += '<span class="chip"><span class="dot" style="--c:var(' + it.med.v + ')"></span>' + it.med.name +
+             ' <span class="t">' + fmt(it.t) + "</span></span>";
+    });
+    h.innerHTML = '<div class="kicker">' + kicker + "</div>" +
+      '<div class="big">' + fmt(f.t) + "</div>" +
+      '<div class="sub">первый приём · сеанс «' + f.label + "» · всего " + cnt + " приёмов · " + phase +
+      (done ? " · отмечено " + done : "") + "</div>" +
+      '<div class="seq">' + seq + "</div>" +
+      '<div class="sub" style="margin-top:10px;">Это просмотр — галочки работают только за сегодня.</div>';
     return;
   }
   var flat = [];
   sessions.forEach(function(s, si){ s.items.forEach(function(it){ flat.push({ it: it, si: si, s: s }); }); });
   var next = null;
   for (var i = 0; i < flat.length; i++){
-    if (!isChecked(flat[i].it.id)){ next = flat[i]; break; }
+    if (!isChecked(day, flat[i].it.id)){ next = flat[i]; break; }
   }
   if (!next){
     var tmr = day < TOTAL ? buildSessions(day + 1, toMin(getWake()))[0] : null;
@@ -350,27 +394,29 @@ function renderHero(day, sessions, nowMin){
   }
 }
 
-function renderTimeline(day, sessions, nowMin){
+function renderTimeline(day, sessions, nowMin, editable){
   var el = $("timeline"), html = "";
   var flatDone = 0, flatAll = 0;
   var firstUncheckedSi = -1;
+  if (editable){
+    sessions.forEach(function(s, si){
+      var undone = s.items.filter(function(it){ return !isChecked(day, it.id); }).length;
+      if (undone > 0 && firstUncheckedSi < 0) firstUncheckedSi = si;
+    });
+  }
   sessions.forEach(function(s, si){
-    var undone = s.items.filter(function(it){ return !isChecked(it.id); }).length;
-    if (undone > 0 && firstUncheckedSi < 0) firstUncheckedSi = si;
-  });
-  sessions.forEach(function(s, si){
-    var doneCnt = s.items.length - s.items.filter(function(it){ return !isChecked(it.id); }).length;
+    var doneCnt = s.items.length - s.items.filter(function(it){ return !isChecked(day, it.id); }).length;
     flatDone += doneCnt; flatAll += s.items.length;
     html += '<div class="sess' + (s.kind === "mini" ? " mini" : "") +
-      (si === firstUncheckedSi ? " now" : "") + (doneCnt === s.items.length ? " alldone" : "") + '">';
+      (editable && si === firstUncheckedSi ? " now" : "") + (doneCnt === s.items.length ? " alldone" : "") + '">';
     html += '<div class="sess-head"><span class="t">' + fmt(s.t) + "</span>" +
       '<span class="lbl">' + s.label + "</span>" +
       (s.kind === "mini" ? '<span class="tag">только Сигницеф</span>' : "") +
       '<span class="cnt">' + doneCnt + "/" + s.items.length + (doneCnt === s.items.length ? " ✓" : "") + "</span></div>";
     s.items.forEach(function(it, k){
       if (k > 0) html += '<div class="gapr"><span>пауза 5–10 мин</span></div>';
-      var missed = !isChecked(it.id) && it.t <= nowMin - 45;
-      html += itemHTML(it, missed);
+      var missed = editable && !isChecked(day, it.id) && it.t <= nowMin - 45;
+      html += itemHTML(it, missed, day, editable);
     });
     html += "</div>";
   });
@@ -378,42 +424,53 @@ function renderTimeline(day, sessions, nowMin){
   $("prog").style.width = flatAll ? Math.round(100 * flatDone / flatAll) + "%" : "0";
 }
 
-function renderStrip(day){
+function renderStrip(day, realDay){
   var html = "";
   for (var i = 1; i <= TOTAL; i++){
-    var d = new Date(START.getFullYear(), START.getMonth(), START.getDate() + i - 1);
+    var d = dayDate(i);
     var num = d.getDate();
-    var m = num === 29 || num === 1 ? (num === 29 || d.getMonth() === 9 ? "окт" : "ноя") : "";
-    if (num === 1) m = "ноя";
-    if (num === 29) m = "окт";
-    html += '<div class="cell' + (i <= 3 ? " p1" : "") + (i === day ? " today" : "") + (i <= 7 ? " acyc" : "") + '">' +
-      num + (m ? '<span class="m">' + m + "</span>" : "") + "</div>";
+    var m = num === 29 ? "окт" : (num === 1 ? "ноя" : "");
+    html += '<button type="button" class="cell cellb' + (i <= 3 ? " p1" : "") +
+      (i === day ? " view" : "") + (i === realDay && realDay <= TOTAL ? " today" : "") + (i <= 7 ? " acyc" : "") +
+      '" data-d="' + i + '">' + num + (m ? '<span class="m">' + m + "</span>" : "") + "</button>";
   }
   $("strip").innerHTML = html;
 }
 
+function curView(){
+  var realDay = dayIndex();
+  if (viewDay >= 1 && viewDay <= TOTAL) return viewDay;
+  return realDay > TOTAL ? TOTAL : realDay;
+}
+
 function render(){
-  var day = dayIndex();
+  var realDay = dayIndex();
+  var day = curView();
   var now = new Date();
   var nowMin = now.getHours() * 60 + now.getMinutes();
   var wakeMin = toMin(getWake());
   var sessions = buildSessions(day, wakeMin);
+  var editable = (day === realDay && realDay <= TOTAL);
 
   var dfmt = new Intl.DateTimeFormat("ru-RU", { weekday: "short", day: "numeric", month: "long" });
-  $("dayline").textContent = day > TOTAL
+  $("dayline").textContent = realDay > TOTAL
     ? "курс завершён"
-    : "день " + day + " из " + TOTAL + " · " + dfmt.format(now);
+    : "день " + realDay + " из " + TOTAL + " · " + dfmt.format(now);
+
+  var t;
+  if (day === realDay) t = "Сегодня";
+  else if (day === realDay + 1) t = "Завтра";
+  else t = new Intl.DateTimeFormat("ru-RU", { weekday: "long", day: "numeric", month: "long" }).format(dayDate(day));
+  $("daytitle").textContent = t.charAt(0).toUpperCase() + t.slice(1);
+  $("dtoday").hidden = day === realDay;
+  $("dprev").disabled = day <= 1;
+  $("dnext").disabled = day >= TOTAL;
 
   $("day1note").hidden = day !== 1;
 
-  if (day > TOTAL){
-    $("timeline").innerHTML = "";
-    $("prog").style.width = "100%";
-  } else {
-    renderTimeline(day, sessions, nowMin);
-  }
-  renderHero(day, sessions, nowMin);
-  renderStrip(day);
+  renderTimeline(day, sessions, nowMin, editable);
+  renderHero(day, sessions, nowMin, realDay);
+  renderStrip(day, realDay);
 }
 
 /* отметки */
@@ -452,6 +509,16 @@ resetBtn.addEventListener("click", function(){
     render();
   }
 });
+
+$("strip").addEventListener("click", function(e){
+  var b = e.target && e.target.closest ? e.target.closest(".cellb") : null;
+  if (!b) return;
+  viewDay = +b.getAttribute("data-d");
+  render();
+});
+$("dprev").addEventListener("click", function(){ var d = curView(); if (d > 1){ viewDay = d - 1; render(); } });
+$("dnext").addEventListener("click", function(){ var d = curView(); if (d < TOTAL){ viewDay = d + 1; render(); } });
+$("dtoday").addEventListener("click", function(){ viewDay = 0; render(); });
 
 document.addEventListener("visibilitychange", function(){ if (!document.hidden) render(); });
 setInterval(render, 30000);
