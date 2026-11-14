@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1A1511" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F0E4" media="(prefers-color-scheme: light)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Аля-плов с сердечками</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Prata&display=swap">
@@ -168,11 +178,16 @@ footer.site{color:var(--muted);font-size:14px;text-align:center;padding-top:8px}
 /* липкая плашка таймера */
 #pill{
   position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom, 0px));
-  z-index:20;display:inline-flex;align-items:center;gap:10px;border:0;cursor:pointer;
-  background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:700;font-size:15px;
-  border-radius:999px;padding:12px 20px;box-shadow:0 8px 24px rgba(0,0,0,.4);
-  font-variant-numeric:tabular-nums;white-space:nowrap;
+  z-index:20;display:flex;align-items:stretch;
+  background:var(--accent);color:var(--accent-ink);
+  border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.4);
+  font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;
 }
+#pill[hidden]{display:none}
+#pill-go{display:inline-flex;align-items:center;gap:10px;border:0;background:transparent;color:inherit;font:inherit;font-weight:700;font-size:15px;padding:13px 18px;cursor:pointer}
+#pill-go svg{width:16px;height:16px;flex:none}
+#pill-play{border:0;border-left:1.5px solid rgba(0,0,0,.22);background:transparent;color:inherit;padding:0 15px;display:grid;place-items:center;cursor:pointer}
+#pill-play svg{width:17px;height:17px}
 #pill.flash{animation:pulse .8s ease infinite}
 
 /* анимации казана */
@@ -180,13 +195,40 @@ footer.site{color:var(--muted);font-size:14px;text-align:center;padding-top:8px}
 @keyframes flick{from{transform:scaleY(.88)}to{transform:scaleY(1.1)}}
 .steam{fill:none;stroke:var(--steam);stroke-width:3.5;stroke-linecap:round;transform-box:fill-box;animation:rise 3.4s ease-out infinite;opacity:0}
 @keyframes rise{0%{opacity:0;transform:translateY(8px)}25%{opacity:.55}100%{opacity:0;transform:translateY(-18px)}}
+/* ── кухня: телефон в занятой руке ── */
+body{overscroll-behavior-y:contain}
+button,.seg button,.rail button,.ing{touch-action:manipulation}
+.rail button,.seg button,#pill-go,#pill-play{user-select:none;-webkit-user-select:none}
+@media (max-width:720px){
+  body{font-size:17px;padding-top:34px}
+  .btn{min-height:54px;padding:13px 20px;font-size:17px;border-radius:14px}
+  .btn svg{width:19px;height:19px}
+  .seg button{padding:13px 18px;font-size:16px}
+  .rail button{width:50px;height:50px;font-size:16px}
+  .ing-card,.step-card{padding:20px 16px}
+  .timer{padding:16px 12px;gap:14px}
+  .t-ring{width:126px;height:126px}
+  .t-ring svg{width:126px;height:126px}
+  .t-num{font-size:30px}
+  .sc-head h3{font-size:21px}
+  .sc-num{font-size:27px}
+  .time-chip{font-size:14px;padding:8px 14px}
+  summary{padding:18px;font-size:17px}
+  details .a{padding:0 18px 18px;font-size:16px}
+  .ing{padding:13px 6px}
+  .ing .box{width:26px;height:26px;border-radius:8px}
+  .ing .box svg{width:16px;height:16px}
+  .hero-grid{gap:12px}
+  h1{font-size:clamp(32px,8.6vw,44px)}
+}
 @media (prefers-reduced-motion: reduce){
   .flame,.steam{animation:none}
   .steam{opacity:.35}
   .timer.flash,#pill.flash{animation:none}
 }
 </style>
-
+</head>
+<body>
 <div class="shell">
 <main>
 
@@ -349,7 +391,10 @@ footer.site{color:var(--muted);font-size:14px;text-align:center;padding-top:8px}
 </main>
 </div>
 
-<button id="pill" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/></svg><span id="pill-text"></span></button>
+<div id="pill" hidden>
+  <button id="pill-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/></svg><span id="pill-text"></span></button>
+  <button id="pill-play" aria-label="Пауза или продолжить таймер"></button>
+</div>
 
 <script>
 'use strict';
@@ -451,10 +496,22 @@ document.addEventListener('keydown',function(e){
   if(e.key==='ArrowRight'&&cur<STEPS.length-1)show(cur+1,true);
   if(e.key==='ArrowLeft'&&cur>0)show(cur-1,true);
 });
+var tx=0,ty=0;
+cards.addEventListener('touchstart',function(e){var t=e.touches[0];tx=t.clientX;ty=t.clientY},{passive:true});
+cards.addEventListener('touchend',function(e){
+  var t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;
+  if(Math.abs(dx)>70&&Math.abs(dy)<55){
+    if(dx<0&&cur<STEPS.length-1)show(cur+1,true);
+    else if(dx>0&&cur>0)show(cur-1,true);
+  }
+},{passive:true});
 
 /* ── таймер ── */
 var T={i:-1,total:0,remain:0,end:0,running:false,int:null,finished:false};
-var pill=$('#pill'),pillText=$('#pill-text');
+var pill=$('#pill'),pillText=$('#pill-text'),pillPlay=$('#pill-play');
+var IC_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>';
+var IC_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.3v13.4c0 .9 1 1.5 1.8 1L20 13c.8-.5.8-1.6 0-2.1L9.8 4.3C9 3.8 8 4.4 8 5.3z"/></svg>';
+var IC_OK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>';
 function fmt(s){s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
 function paint(){
   $$('.timer').forEach(function(el){
@@ -475,6 +532,7 @@ function paint(){
     else if(T.running){label=fmt((T.end-Date.now())/1000)+' · '+STEPS[T.i].name}
     else{label='пауза · '+fmt(T.remain)+' · '+STEPS[T.i].name}
     pillText.textContent=label;
+    pillPlay.innerHTML=T.finished?IC_OK:(T.running?IC_PAUSE:IC_PLAY);
     document.title=(T.finished?'✓ готово':fmt(T.running?(T.end-Date.now())/1000:T.remain))+' · '+BASE_TITLE;
     pill.classList.toggle('flash',T.finished);
   }else{pill.hidden=true;pill.classList.remove('flash');document.title=BASE_TITLE}
@@ -482,8 +540,9 @@ function paint(){
 function stopTick(){if(T.int){clearInterval(T.int);T.int=null}}
 function finish(){
   T.running=false;T.finished=true;T.remain=0;stopTick();releaseLock();
-  try{var ac=knock.ctx||((knock.ctx=new (window.AudioContext||window.webkitAudioContext)()))}catch(e){return paint()}
-  if(ac.state==='suspended')ac.resume();
+  var ac=null;
+  try{ac=knock.ctx||((knock.ctx=new (window.AudioContext||window.webkitAudioContext)()))}catch(e){return paint()}
+  if(ac.state==='suspended'){try{ac.resume()}catch(e2){}}
   for(var k=0;k<3;k++){var base=ac.currentTime+k*1.0;
     [0,0.14].forEach(function(dt){pulse(ac,base+dt)})}
   paint();
@@ -496,6 +555,14 @@ function pulse(ac,t){
   g.gain.exponentialRampToValueAtTime(0.22,t+0.008);
   g.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
   o.start(t);o.stop(t+0.1);
+}
+function ensureAudio(){
+  try{
+    if(!knock.ctx)knock.ctx=new (window.AudioContext||window.webkitAudioContext)();
+    if(knock.ctx.state==='suspended')knock.ctx.resume();
+    var t=knock.ctx.currentTime,o=knock.ctx.createOscillator(),g=knock.ctx.createGain();
+    o.frequency.value=1500;g.gain.value=0.0001;o.connect(g);g.connect(knock.ctx.destination);o.start(t);o.stop(t+0.03);
+  }catch(e){}
 }
 var wl=null;
 function lock(){try{if(navigator.wakeLock&&navigator.wakeLock.request)navigator.wakeLock.request('screen').then(function(w){wl=w}).catch(function(){})}catch(e){}}
@@ -510,6 +577,7 @@ cards.addEventListener('click',function(e){
     paint();return;
   }
   if(e.target.closest('.t-start')){
+    ensureAudio();
     if(T.i===i&&T.running){ /* пауза */
       T.remain=(T.end-Date.now())/1000;T.running=false;stopTick();releaseLock();
     }else if(T.i===i&&!T.finished&&T.remain>0&&T.remain<STEPS[i].sec){ /* продолжить */
@@ -530,9 +598,17 @@ function tick(){
     paint();
   },400);
 }
-pill.addEventListener('click',function(){
+$('#pill-go').addEventListener('click',function(){
+  if(T.i<0)return;
   if(T.finished){T.i=-1;T.finished=false;paint();return}
   var tw=$('.timer[data-step="'+T.i+'"]');if(tw)tw.scrollIntoView({behavior:'smooth',block:'center'})
+});
+pillPlay.addEventListener('click',function(){
+  if(T.i<0)return;
+  if(T.finished){T.i=-1;T.finished=false;paint();return}
+  if(T.running){T.remain=(T.end-Date.now())/1000;T.running=false;stopTick();releaseLock()}
+  else if(T.remain>0){T.running=true;T.end=Date.now()+T.remain*1000;tick();lock();ensureAudio()}
+  paint();
 });
 
 /* ── порции ── */
@@ -560,3 +636,5 @@ ingBoxes.forEach(function(c,i){
 
 setPortions(portions);ingCount();show(cur,false);paint();
 </script>
+</body>
+</html>
