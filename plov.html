@@ -1,0 +1,562 @@
+<title>Аля-плов с сердечками</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Prata&display=swap">
+<style>
+/* тема: казан ночью — тёмный чугун, шафран, паприка. Светлая — утренняя кухня. */
+:root{
+  color-scheme: dark;
+  --bg:#1A1511; --surface:#221C16; --surface-2:#2B241B; --line:#3C3327;
+  --ink:#F2E9DA; --muted:#B4A288;
+  --accent:#E3A93E; --accent-ink:#221604;
+  --hearts:#E07A48; --ok:#96BA7B; --soft:#2E2414;
+  --iron:#241D15; --iron-rim:#352A1D; --cavity:#110C07; --rice:#EFE2C4; --steam:#8E7E66; --flame:#D96A38;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --font-display:'Prata',Georgia,'Times New Roman',serif;
+  --font-body:'Onest','Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    color-scheme: light;
+    --bg:#F6F0E4; --surface:#FFFDF7; --surface-2:#F3EAD8; --line:#E2D6BE;
+    --ink:#271D10; --muted:#6E5D46;
+    --accent:#A96F0E; --accent-ink:#FFF9EC;
+    --hearts:#B54A1D; --ok:#4C7A35; --soft:#F4E8CE;
+    --iron:#4A3A28; --iron-rim:#5C4934; --cavity:#241B10; --rice:#F4E9CE; --steam:#A08B6B; --flame:#C75B22;
+    --shadow:0 10px 26px rgba(80,60,30,.12);
+  }
+}
+:root[data-theme="light"]{
+  color-scheme: light;
+  --bg:#F6F0E4; --surface:#FFFDF7; --surface-2:#F3EAD8; --line:#E2D6BE;
+  --ink:#271D10; --muted:#6E5D46;
+  --accent:#A96F0E; --accent-ink:#FFF9EC;
+  --hearts:#B54A1D; --ok:#4C7A35; --soft:#F4E8CE;
+  --iron:#4A3A28; --iron-rim:#5C4934; --cavity:#241B10; --rice:#F4E9CE; --steam:#A08B6B; --flame:#C75B22;
+  --shadow:0 10px 26px rgba(80,60,30,.12);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); font-size:16px; line-height:1.62;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:52px 120px;
+}
+.shell{max-width:940px;margin:0 auto}
+main{display:flex;flex-direction:column;gap:78px}
+section{min-width:0}
+h1,h2{font-family:var(--font-display);font-weight:400;text-wrap:balance;letter-spacing:.2px}
+h1{font-size:clamp(36px,6vw,54px);line-height:1.1;margin:14px 0 16px}
+h2{font-size:clamp(24px,3.4vw,31px);line-height:1.2;margin:10px 0 12px}
+p{margin:0 0 12px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.lead{color:var(--muted);max-width:56ch}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+b,strong{font-weight:600}
+.btn{
+  font:inherit;font-weight:600;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);
+  border-radius:11px;padding:10px 18px;cursor:pointer;transition:filter .15s,transform .05s;
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;
+}
+.btn:hover{filter:brightness(1.1)}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn[disabled]{opacity:.45;cursor:default;filter:none}
+.btn svg{width:16px;height:16px}
+
+/* ── герой ── */
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:34px;align-items:center}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 22px}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:7px 14px;color:var(--muted);font-size:14px;background:var(--surface)}
+.chip svg{width:15px;height:15px;color:var(--accent);flex:none}
+.hero-note{color:var(--muted);font-size:15px}
+.kazan{width:100%;max-width:360px;height:auto;display:block;margin:0 auto}
+@media (max-width:719px){
+  .hero-grid{grid-template-columns:1fr;gap:18px}
+  .kazan{max-width:250px}
+}
+
+/* ── правила ── */
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:14px;margin-top:22px}
+.rule{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}
+.rule-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.ric{width:40px;height:40px;border-radius:11px;background:var(--soft);color:var(--hearts);display:grid;place-items:center;flex:none}
+.ric svg{width:21px;height:21px}
+.rule .stat{font-family:var(--font-display);font-size:23px;color:var(--accent);white-space:nowrap}
+.rule h3{font-size:16.5px;margin:0 0 6px;font-weight:700}
+.rule p{color:var(--muted);font-size:14.5px;line-height:1.55;margin:0}
+
+/* ── ингредиенты ── */
+.ing-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;margin-top:22px;box-shadow:var(--shadow)}
+.ing-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.seg button{font:inherit;font-size:14px;font-weight:600;border:0;background:transparent;color:var(--muted);padding:9px 15px;cursor:pointer}
+.seg button + button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.ing-list{display:grid;gap:2px}
+.ing{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:13px;padding:10px 6px;border-radius:10px;cursor:pointer;min-width:0}
+.ing:hover{background:var(--surface-2)}
+.ing input{position:absolute;opacity:0;pointer-events:none}
+.ing .box{width:21px;height:21px;border-radius:6px;border:1.5px solid var(--line);display:grid;place-items:center;color:transparent;flex:none;transition:all .12s}
+.ing .box svg{width:13px;height:13px}
+.ing input:checked ~ .box{background:var(--ok);border-color:var(--ok);color:#10230A}
+.ing input:focus-visible ~ .box{outline:2px solid var(--accent);outline-offset:2px}
+.ing .name{min-width:0}
+.ing input:checked ~ .name{color:var(--muted);text-decoration:line-through}
+.ing .amt{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink);white-space:nowrap}
+.ing-note{color:var(--muted);font-size:14px;margin:14px 6px 0}
+.ing-count{color:var(--muted);font-size:14px}
+
+/* ── шаги ── */
+.steps-meta{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.linklike{font:inherit;font-size:14px;background:none;border:0;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0}
+.linklike:hover{color:var(--ink)}
+.pbar{height:5px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin:14px 0 20px}
+.pbar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s;width:0}
+.rail{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px;scrollbar-width:thin}
+.rail button{
+  flex:none;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);
+  color:var(--muted);font:inherit;font-weight:700;font-size:14px;cursor:pointer;font-variant-numeric:tabular-nums;
+}
+.rail button.done{background:var(--soft);border-color:var(--accent);color:var(--accent)}
+.rail button.cur{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.step-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:var(--shadow);min-width:0}
+.step-card[hidden]{display:none}
+.sc-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.sc-num{font-family:var(--font-display);font-size:34px;color:var(--hearts);line-height:1}
+.sc-head h3{font-family:var(--font-display);font-weight:400;font-size:24px;margin:0;flex:1;min-width:0}
+.time-chip{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--accent);background:var(--soft);border-radius:999px;padding:6px 13px;white-space:nowrap}
+.time-chip svg{width:14px;height:14px}
+.sc-body{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:11px}
+.sc-body li{position:relative;padding-left:26px;color:var(--ink)}
+.sc-body li::before{content:"";position:absolute;left:2px;top:9px;width:8px;height:8px;border-radius:50%;background:var(--hearts)}
+.tip{margin-top:18px;padding:13px 16px;border-left:3px solid var(--accent);background:var(--soft);border-radius:0 12px 12px 0;font-size:14.5px;color:var(--ink)}
+.tip .eyebrow{display:block;margin-bottom:3px;color:var(--accent)}
+
+/* таймер */
+.timer{display:flex;gap:20px;align-items:center;margin-top:20px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:18px;flex-wrap:wrap}
+.timer.live{border-color:var(--accent)}
+.timer.flash{animation:pulse .8s ease infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(227,169,62,.0)}50%{box-shadow:0 0 0 6px rgba(227,169,62,.25)}}
+.t-ring{position:relative;width:108px;height:108px;flex:none}
+.t-ring svg{width:108px;height:108px;transform:rotate(-90deg)}
+.t-ring circle{fill:none;stroke-width:7}
+.ring-bg{stroke:var(--line)}
+.ring-fg{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:326.73;stroke-dashoffset:0;transition:stroke-dashoffset .4s linear}
+.t-num{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.t-side{flex:1;min-width:170px;display:grid;gap:6px}
+.t-label{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.t-hint{color:var(--muted);font-size:13.5px}
+.t-btns{display:flex;gap:9px;margin-top:5px;flex-wrap:wrap}
+.sc-nav{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.sc-nav .grow{flex:1}
+
+/* ── FAQ ── */
+.faq-list{margin-top:20px;display:grid;gap:10px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+summary{cursor:pointer;padding:16px 20px;font-weight:600;font-size:16px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:22px;color:var(--accent);font-weight:400;flex:none;transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details .a{padding:0 20px 18px;color:var(--muted);font-size:15px;max-width:70ch}
+details .a b{color:var(--ink)}
+
+footer.site{color:var(--muted);font-size:14px;text-align:center;padding-top:8px}
+
+/* липкая плашка таймера */
+#pill{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index:20;display:inline-flex;align-items:center;gap:10px;border:0;cursor:pointer;
+  background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:700;font-size:15px;
+  border-radius:999px;padding:12px 20px;box-shadow:0 8px 24px rgba(0,0,0,.4);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+#pill.flash{animation:pulse .8s ease infinite}
+
+/* анимации казана */
+.flame{transform-box:fill-box;transform-origin:50% 100%;animation:flick .7s ease-in-out infinite alternate}
+@keyframes flick{from{transform:scaleY(.88)}to{transform:scaleY(1.1)}}
+.steam{fill:none;stroke:var(--steam);stroke-width:3.5;stroke-linecap:round;transform-box:fill-box;animation:rise 3.4s ease-out infinite;opacity:0}
+@keyframes rise{0%{opacity:0;transform:translateY(8px)}25%{opacity:.55}100%{opacity:0;transform:translateY(-18px)}}
+@media (prefers-reduced-motion: reduce){
+  .flame,.steam{animation:none}
+  .steam{opacity:.35}
+  .timer.flash,#pill.flash{animation:none}
+}
+</style>
+
+<div class="shell">
+<main>
+
+<!-- ══ ГЕРОЙ ══ -->
+<header class="hero-grid" id="top">
+  <div>
+    <span class="eyebrow">рецепт-навигатор · казан или глубокая сковорода</span>
+    <h1>Аля-плов с куриными&nbsp;сердечками</h1>
+    <div class="chips">
+      <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/></svg>≈ 1 ч 20 мин</span>
+      <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/></svg>4 порции · пересчитывается</span>
+      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5c.6 2.6 2.3 3.9 3.4 5.4 1 1.4 1.6 2.7 1.6 4.1a5 5 0 1 1-10 0c0-1.6.8-3 1.7-4.4.3 1.2 1 2 1.9 2.4C10.2 8.3 11.3 6 12 3.5z"/></svg>огонь: от сильного к тихому</span>
+    </div>
+    <p class="lead">Не узбекский плов, а честный аля-плов: рис, морковь, зирвак и главная задача — <b style="color:var(--ink)">сердечки без резины</b>. Лук и чеснок нужны, и страница объяснит, зачем.</p>
+    <p style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px">
+      <a class="btn btn-primary" href="#steps">К шагам</a>
+      <a class="btn" href="#hearts">Почему резина — и как её избежать</a>
+    </p>
+    <p class="hero-note" style="margin-top:16px">Таймеры работают прямо на странице — с негромким стуком в конце.</p>
+  </div>
+
+  <svg class="kazan" viewBox="0 0 340 260" aria-hidden="true">
+    <ellipse cx="170" cy="238" rx="86" ry="9" fill="var(--flame)" opacity=".14"/>
+    <path class="flame" transform="translate(126 242) scale(.45)" d="M0,-22 C5,-12 9,-8 9,-3 a9,9 0 0 1 -18,0 C-9,-8 -5,-12 0,-22 Z" fill="var(--flame)" style="animation-delay:-.2s"/>
+    <path class="flame" transform="translate(143 244) scale(.75)" d="M0,-22 C5,-12 9,-8 9,-3 a9,9 0 0 1 -18,0 C-9,-8 -5,-12 0,-22 Z" fill="var(--accent)" style="animation-delay:-.5s"/>
+    <path class="flame" transform="translate(170 246)" d="M0,-22 C5,-12 9,-8 9,-3 a9,9 0 0 1 -18,0 C-9,-8 -5,-12 0,-22 Z" fill="var(--flame)"/>
+    <path class="flame" transform="translate(197 244) scale(.8)" d="M0,-22 C5,-12 9,-8 9,-3 a9,9 0 0 1 -18,0 C-9,-8 -5,-12 0,-22 Z" fill="var(--accent)" style="animation-delay:-.35s"/>
+    <path class="flame" transform="translate(215 242) scale(.5)" d="M0,-22 C5,-12 9,-8 9,-3 a9,9 0 0 1 -18,0 C-9,-8 -5,-12 0,-22 Z" fill="var(--flame)" style="animation-delay:-.6s"/>
+    <path d="M58,96 C48,96 44,106 50,112" stroke="var(--iron-rim)" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <path d="M282,96 C292,96 296,106 290,112" stroke="var(--iron-rim)" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <path d="M60,100 C62,168 104,212 170,212 C236,212 278,168 280,100 Z" fill="var(--iron)" stroke="var(--iron-rim)" stroke-width="2"/>
+    <ellipse cx="170" cy="100" rx="112" ry="17" fill="var(--iron-rim)"/>
+    <ellipse cx="170" cy="100" rx="97" ry="12" fill="var(--cavity)"/>
+    <ellipse cx="170" cy="97" rx="62" ry="9" fill="var(--rice)"/>
+    <ellipse cx="168" cy="92" rx="38" ry="6" fill="var(--rice)"/>
+    <circle cx="214" cy="89" r="9.5" fill="var(--rice)"/>
+    <circle cx="214" cy="80" r="3" fill="var(--steam)"/>
+    <path class="steam" style="animation-delay:0s"   d="M142,82 C138,72 146,64 142,54 C138,44 144,38 141,28"/>
+    <path class="steam" style="animation-delay:1.2s" d="M170,78 C166,68 174,60 170,50 C166,40 172,34 169,24"/>
+    <path class="steam" style="animation-delay:2.3s" d="M198,82 C194,72 202,64 198,54 C194,44 200,38 197,28"/>
+  </svg>
+</header>
+
+<!-- ══ ПРАВИЛА ПРО СЕРДЕЧКИ ══ -->
+<section id="hearts">
+  <span class="eyebrow">мясо</span>
+  <h2>Четыре правила нежных сердечек</h2>
+  <p class="lead">Сердечко — плотная мышца. Резина появляется, когда её долго жарят или бурно кипятят: белок сжимается и выдавливает влагу. Всё, что нужно, — четыре привычки.</p>
+  <div class="rules-grid">
+    <div class="rule">
+      <div class="rule-top">
+        <span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.5c3.2 4.4 5.8 7 5.8 10a5.8 5.8 0 1 1-11.6 0c0-3 2.6-5.6 5.8-10z"/></svg></span>
+        <span class="stat">15 мин</span>
+      </div>
+      <h3>Почисти и вымочи</h3>
+      <p>Обрежь сосуды и жир, разрежь каждое вдоль пополам, выполощи сгустки крови и залей холодной водой на 15 минут. Кровь — главный поставщик жёсткости и железного запаха.</p>
+    </div>
+    <div class="rule">
+      <div class="rule-top">
+        <span class="ric"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5c.6 2.6 2.3 3.9 3.4 5.4 1 1.4 1.6 2.7 1.6 4.1a5 5 0 1 1-10 0c0-1.6.8-3 1.7-4.4.3 1.2 1 2 1.9 2.4C10.2 8.3 11.3 6 12 3.5z"/></svg></span>
+        <span class="stat">3–4 мин</span>
+      </div>
+      <h3>Обсуши и запечатай</h3>
+      <p>Сухие половинки — на сильный огонь, помешивая, до лёгкой корочки. Корочка запечатывает сок внутри — это и есть нежность. Влажные сердечки сварятся вместо обжарки.</p>
+    </div>
+    <div class="rule">
+      <div class="rule-top">
+        <span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 10h16v3a7 7 0 0 1-7 7h-2a7 7 0 0 1-7-7v-3z"/><path d="M9 6c0-1.2 1-1.4 1-2.6M14 6c0-1.2 1-1.4 1-2.6"/></svg></span>
+        <span class="stat">тихо</span>
+      </div>
+      <h3>Томи, не вари</h3>
+      <p>После обжарки — только слабое бульканье зирвака. 15 минут томления доходят сердечко до мягкости, не выжимая из него сок. Сильное кипение отменяет первые два правила.</p>
+    </div>
+    <div class="rule">
+      <div class="rule-top">
+        <span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/></svg></span>
+        <span class="stat">≈ 45 мин</span>
+      </div>
+      <h3>Доведи паром</h3>
+      <p>Дальше сердечку хватает мягкого тепла: томление и рисовый пар догревают его без перегрева. Проверка в конце: разрежь одно — сочное и легко жуётся.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ИНГРЕДИЕНТЫ ══ -->
+<section id="ing">
+  <span class="eyebrow">список</span>
+  <h2>Ингредиенты</h2>
+  <div class="ing-card">
+    <div class="ing-head">
+      <div class="seg" role="group" aria-label="Порций">
+        <button data-p="2">2</button><button data-p="3">3</button><button data-p="4" class="on">4</button><button data-p="6">6</button>
+      </div>
+      <span class="ing-count" id="ing-count">собрано 0 из 9</span>
+    </div>
+    <div class="ing-list" id="ing-list">
+      <label class="ing"><input type="checkbox"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></span><span class="name">Куриные сердечки</span><span class="amt" data-p2="250 г" data-p3="375 г" data-p4="500 г" data-p6="750 г">500 г</span></label>
+      <label class="ing"><input type="checkbox"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></span><span class="name">Рис длиннозёрный — басмати или девзира</span><span class="amt" data-p2="200 г" data-p3="300 г" data-p4="400 г" data-p6="600 г">400 г</span></label>
+      <label class="ing"><input type="checkbox"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></span><span class="name">Морковь</span><span class="amt" data-p2="2 шт · 200 г" data-p3="250 г" data-p4="3 шт · 350 г" data-p6="500 г">3 шт · 350 г</span></label>
+      <label class="ing"><input type="checkbox"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></span><span class="name">Лук репчатый</span><span class="amt" data-p2="1 шт" data-p3="1–2 шт" data-p4="2 шт" data-p6="3 шт">2 шт</span></label>
+      <label class="ing"><input type="checkbox"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></span><span class="name">Чеснок — целыми головками</span><span class="amt" data-p2="1 головка" data-p3="1 головка" data-p4="1 головка" data-p6="2 головки">1 головка</span></label>
+      <label class="ing"><input type="checkbox"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></span><span class="name">Приправа для плова</span><span class="amt" data-p2="1 ст. л." data-p3="1 ст. л." data-p4="1½ ст. л." data-p6="2 ст. л.">1½ ст. л.</span></label>
+      <label class="ing"><input type="checkbox"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></span><span class="name">Масло растительное</span><span class="amt" data-p2="60 мл" data-p3="80 мл" data-p4="100 мл" data-p6="140 мл">100 мл</span></label>
+      <label class="ing"><input type="checkbox"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></span><span class="name">Соль</span><span class="amt" data-p2="½ ч. л." data-p3="1 ч. л." data-p4="1 ч. л. с горкой" data-p6="1½ ч. л.">1 ч. л. с горкой</span></label>
+      <label class="ing"><input type="checkbox"><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></span><span class="name">Вода горячая (кипяток)</span><span class="amt" data-p2="≈500 мл" data-p3="≈650 мл" data-p4="≈800 мл" data-p6="≈1,1 л">≈800 мл</span></label>
+    </div>
+    <p class="ing-note">Вода — ориентир: на шаге риса меряй пальцем, на 1,5–2 см выше крупы. Приправа уже содержит соль — пробуй бульон, а не сыпь вслепую.</p>
+  </div>
+</section>
+
+<!-- ══ ШАГИ ══ -->
+<section id="steps">
+  <span class="eyebrow">процесс</span>
+  <h2>Готовим — 8 шагов</h2>
+  <div class="steps-meta">
+    <span id="s-count" style="color:var(--muted);font-size:15px">шаг 1 из 8 · <b id="s-name" style="color:var(--ink)">подготовка</b></span>
+    <button class="linklike" id="s-reset">начать заново</button>
+  </div>
+  <div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0" id="pbar"><i id="pfill"></i></div>
+  <div class="rail" id="rail" role="tablist" aria-label="Шаги"></div>
+  <div id="cards"></div>
+</section>
+
+<!-- ══ FAQ ══ -->
+<section id="faq">
+  <span class="eyebrow">вопросы</span>
+  <h2>Лук, чеснок и прочие сомнения</h2>
+  <div class="faq-list">
+    <details>
+      <summary>Так нужны лук или нет?</summary>
+      <div class="a"><b>Нужен.</b> Он растворяется в зирваке целиком и отдаёт сладость и глубину — это основа вкуса, на которой держатся специи. Без лука получится «рисовая каша с сердечками». Две средние луковицы на 4 порции: полукольцами и в масло первыми.</div>
+    </details>
+    <details>
+      <summary>А чеснок?</summary>
+      <div class="a"><b>Тоже нужен, но целой головкой.</b> Сними только верхнюю шелуху, срежь макушку — и втыкаешь её в рис перед пропариванием. Она печётся паром, а мякоть потом выдавливают прямо в тарелку: мягкая, сладкая, без злости. Хочешь поострее — мелко поруби пару зубчиков в зирвак.</div>
+    </details>
+    <details>
+      <summary>Почему сердечки всё-таки выходят резиновыми?</summary>
+      <div class="a">Их переваривают или пережаривают. Мышечные белки при долгом сильном нагреве сжимаются и выдавливают влагу — отсюда «жевательная резинка». Рабочая схема: вымочить от крови → 3–4 минуты сильной обжарки → 15 минут тихого томления → мягкий рисовый пар. <b>Уже получилась резина?</b> Влей кипяток почти под крышку и туши на минимальном огне 25–30 минут — сердечки вернут мягкость, как в тушении.</div>
+    </details>
+    <details>
+      <summary>Какой рис брать?</summary>
+      <div class="a">Длиннозёрный: басмати, девзира или обычный длинный. Круглый разварится в кашу — он для молочных супов. Рис промывают в 5–7 водах до прозрачной: смывается лишний крахмал, ответственность за липкость снята.</div>
+    </details>
+    <details>
+      <summary>Нет казана — что делать?</summary>
+      <div class="a">Глубокая чугунная сковорода, утятница или сотейник с толстым дном и плотной крышкой. Смысл казана — ровный слабый нагрев по дну; толстое дно даёт то же самое.</div>
+    </details>
+    <details>
+      <summary>А если приправы для плова нет?</summary>
+      <div class="a">Собери сам: зира (обязательно, разотри в ладонях), куркума, паприка, чёрный перец и щепотка барбариса для кислинки. Пропорция — по чайной ложке всего, кроме куркумы: её половину.</div>
+    </details>
+  </div>
+</section>
+
+<footer class="site">
+  <p>Аутентичным это не назовёшь — потому и «аля». Зато сердечки нежные, рис рассыпчатый, и лук с чесноком при деле.</p>
+</footer>
+
+</main>
+</div>
+
+<button id="pill" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/></svg><span id="pill-text"></span></button>
+
+<script>
+'use strict';
+var BASE_TITLE = document.title;
+function $(s){return document.querySelector(s)}
+function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
+function ls(k,d){try{var v=localStorage.getItem('plov.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}}
+function sv(k,v){try{localStorage.setItem('plov.'+k,JSON.stringify(v))}catch(e){}}
+
+/* ── шаги ── */
+var STEPS=[
+ {t:'Подготовка',time:'15 минут',sec:900,name:'подготовка',
+  body:['<b>Рис.</b> Промой в 5–7 водах, пока вода не станет прозрачной, и залей тёплой подсоленной водой — пусть стоит до своего шага.','<b>Сердечки.</b> Обрежь сосуды и жир, разрежь каждое вдоль пополам, выполощи сгустки крови и залей холодной водой на 15 минут.','<b>Морковь</b> — соломкой, толщиной в спичку, длиной 4–5 см. Не трись на тёрке: соломка держит форму, стружка превращается в кашу.','<b>Лук</b> — полукольцами. <b>Чеснок</b> — сними верхнюю шелуху, срежь макушку на полсантиметра, чтобы оголились дольки.'],
+  tip:'Пока сердечки вымачиваются, спокойно нарежь морковь. Это единственный шаг, где ничего не может подгореть.'},
+ {t:'Лук — база вкуса',time:'6 минут',sec:360,name:'лук',
+  body:['Налей масло в казан или глубокую сковороду, средне-сильный огонь.','Лук — в масло. Жарь, помешивая, до уверенного золотистого цвета.'],
+  tip:'Золотистый лук — фундамент: на нём строятся специи и масло. Подгорел — проще начать заново, горечь не спрячешь.'},
+ {t:'Сердечки — обжарка',time:'4 минуты',sec:240,name:'сердечки',
+  body:['Обсуши половинки бумажным полотенцем: сухая поверхность даёт корочку, мокрая — варится.','Сильный огонь. Сердечки к луку, помешивай 3–4 минуты до лёгкой корочки. Задача — запечатать сок, а не приготовить до конца.'],
+  tip:'Самый важный шаг против резины. Стоишь у плиты все четыре минуты — и хватит. Соль пока не добавляй: она выжмет сок раньше времени.'},
+ {t:'Морковь',time:'5 минут',sec:300,name:'морковь',
+  body:['Морковь к сердечкам с луком. Помешивай 4–5 минут, пока соломка не обмякнет снаружи и не пропитается маслом.'],
+  tip:'Морковь даёт сладость и цвет плову — это тот случай, когда пять минут имеют вкус.'},
+ {t:'Зирвак',time:'15 минут',sec:900,name:'зирвак',
+  body:['Залей кипятком так, чтобы содержимое было покрыто примерно на сантиметр.','Приправа для плова и соль — примерно чайная ложка с горкой на 4 порции.','Убавь до слабого огня и томи 15 минут, изредка помешивая.'],
+  tip:'Попробуй бульон: он должен быть чуть солонее, чем хочется, — рис заберёт соль себе. Именно в этом тихом томлении сердечки доходят до нежности.'},
+ {t:'Рис',time:'8–10 минут',sec:540,name:'рис',
+  body:['Слей воду с риса и выложи ровным слоем поверх зирвака. С мясом не перемешивай — рис лежит сверху.','Долей кипяток: на 1,5–2 см выше риса, по вторую фалангу пальца.','Воткни головку чеснока в центр. Сильный огонь, без крышки, пока вода не уйдёт в рис: на поверхности появятся кратеры, как у маленьких вулканов.'],
+  tip:'Ни одного помешивания с нижним слоем до конца готовки — рассыпчатость живёт именно в этом «не трогай».'},
+ {t:'Пар',time:'15 минут',sec:900,name:'пар',
+  body:['Лопаткой сгреби рис горкой от стенок к центру.','Проколи плов в пяти-шести местах до самого дна — черенком ложки или палочкой: пар должен проходить сквозь рис.','Крышка. Самый слабый огонь. 15 минут.'],
+  tip:'Отверстия — это дыхание плова: пар обходит каждую рисинку, а не только верхний слой.'},
+ {t:'Отдых и подача',time:'10 минут',sec:600,name:'отдых',
+  body:['Выключи огонь и не открывай крышку ещё 10 минут — рис дозреет на остаточном тепле.','Открой, вынь чеснок и аккуратно перемешай плов снизу вверх, поднимая сердечки с зирваком к рису.','Зубчики чеснока выдави прямо в тарелку: печёная мякоть мягкая и сладкая.'],
+  tip:'Финальная проверка: разрежь сердечко пополам — сочное и легко жуётся? Значит, всё сделано правильно.'}
+];
+
+var cur=ls('step',0), done=new Set(ls('done',[]));
+if(cur<0||cur>=STEPS.length)cur=0;
+
+/* карточки */
+var cards=$('#cards');
+STEPS.forEach(function(s,i){
+  var lis=s.body.map(function(b){return '<li>'+b+'</li>'}).join('');
+  var last=i===STEPS.length-1;
+  var nextBtn=last
+    ?'<button class="btn btn-primary" id="finish-btn">Приятного аппетита — сбросить и готовить снова</button>'
+    :'<button class="btn btn-primary" data-next>Шаг выполнен — дальше<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>';
+  var el=document.createElement('article');
+  el.className='step-card'; el.dataset.step=i; el.hidden=true;
+  el.innerHTML=
+   '<div class="sc-head"><span class="sc-num">'+(i+1)+'</span><h3>'+s.t+'</h3>'+
+   '<span class="time-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/></svg>'+s.time+'</span></div>'+
+   '<ul class="sc-body">'+lis+'</ul>'+
+   '<div class="tip"><span class="eyebrow">совет</span>'+s.tip+'</div>'+
+   '<div class="timer" data-step="'+i+'">'+
+     '<div class="t-ring"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" cx="60" cy="60" r="52"/></svg><div class="t-num">'+fmt(s.sec)+'</div></div>'+
+     '<div class="t-side"><span class="t-label">таймер шага</span>'+
+     '<span class="t-hint">нажми старт, когда поставишь на огонь</span>'+
+     '<div class="t-btns"><button class="btn btn-primary t-start">старт</button><button class="btn t-reset">сброс</button></div></div></div>'+
+   '<div class="sc-nav">'+
+     '<button class="btn" data-prev '+(i===0?'disabled':'')+'><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>Назад</button>'+
+     '<span class="grow"></span>'+nextBtn+
+   '</div>';
+  cards.appendChild(el);
+});
+
+/* рельса шагов */
+var rail=$('#rail');
+STEPS.forEach(function(s,i){
+  var b=document.createElement('button');
+  b.textContent=i+1; b.title=(i+1)+'. '+s.t;
+  b.addEventListener('click',function(){show(i,true)});
+  rail.appendChild(b);
+});
+
+function show(i,scroll){
+  cur=i; sv('step',cur);
+  $$('.step-card').forEach(function(c){c.hidden=+c.dataset.step!==i});
+  rail.children.forEach(function(b,j){
+    b.classList.toggle('cur',j===i);
+    b.classList.toggle('done',done.has(j)&&j!==i);
+  });
+  $('#s-count').innerHTML='шаг '+(i+1)+' из '+STEPS.length+' · <b id="s-name" style="color:var(--ink)">'+STEPS[i].name+'</b>';
+  $('#pbar').setAttribute('aria-valuenow',done.size);
+  $('#pfill').style.width=(done.size/STEPS.length*100)+'%';
+  if(scroll){var c=$('.step-card[data-step="'+i+'"]');if(c)c.scrollIntoView({behavior:'smooth',block:'start'})}
+}
+cards.addEventListener('click',function(e){
+  var n=e.target.closest('[data-next]'), p=e.target.closest('[data-prev]'), f=e.target.closest('#finish-btn');
+  if(n){done.add(cur);sv('done',[].concat(done));if(cur<STEPS.length-1)show(cur+1,true)}
+  if(p&&cur>0)show(cur-1,true);
+  if(f){resetProgress();show(0,true)}
+});
+$('#s-reset').addEventListener('click',function(){resetProgress();show(0,true)});
+function resetProgress(){done=new Set();sv('done',[])}
+document.addEventListener('keydown',function(e){
+  if(e.target!==document.body)return;
+  if(e.key==='ArrowRight'&&cur<STEPS.length-1)show(cur+1,true);
+  if(e.key==='ArrowLeft'&&cur>0)show(cur-1,true);
+});
+
+/* ── таймер ── */
+var T={i:-1,total:0,remain:0,end:0,running:false,int:null,finished:false};
+var pill=$('#pill'),pillText=$('#pill-text');
+function fmt(s){s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+function paint(){
+  $$('.timer').forEach(function(el){
+    var i=+el.dataset.step, num=el.querySelector('.t-num'), ring=el.querySelector('.ring-fg');
+    var isT=T.i===i, full=STEPS[i].sec;
+    var rem=isT?(T.running?(T.end-Date.now())/1000:T.remain):full;
+    if(T.finished&&isT)rem=0;
+    num.textContent=fmt(rem);
+    ring.style.strokeDashoffset=(326.73*(1-Math.max(0,rem)/full)).toFixed(1);
+    el.classList.toggle('live',isT&&T.running);
+    var b=el.querySelector('.t-start');
+    b.textContent=isT&&T.running?'пауза':(isT&&T.remain<full&&T.remain>0&&!T.running&&!T.finished?'продолжить':'старт');
+  });
+  if(T.i>-1){
+    pill.hidden=false;
+    var label;
+    if(T.finished){label='готово — '+STEPS[T.i].name}
+    else if(T.running){label=fmt((T.end-Date.now())/1000)+' · '+STEPS[T.i].name}
+    else{label='пауза · '+fmt(T.remain)+' · '+STEPS[T.i].name}
+    pillText.textContent=label;
+    document.title=(T.finished?'✓ готово':fmt(T.running?(T.end-Date.now())/1000:T.remain))+' · '+BASE_TITLE;
+    pill.classList.toggle('flash',T.finished);
+  }else{pill.hidden=true;pill.classList.remove('flash');document.title=BASE_TITLE}
+}
+function stopTick(){if(T.int){clearInterval(T.int);T.int=null}}
+function finish(){
+  T.running=false;T.finished=true;T.remain=0;stopTick();releaseLock();
+  try{var ac=knock.ctx||((knock.ctx=new (window.AudioContext||window.webkitAudioContext)()))}catch(e){return paint()}
+  if(ac.state==='suspended')ac.resume();
+  for(var k=0;k<3;k++){var base=ac.currentTime+k*1.0;
+    [0,0.14].forEach(function(dt){pulse(ac,base+dt)})}
+  paint();
+}
+function pulse(ac,t){
+  var o=ac.createOscillator(),g=ac.createGain();
+  o.type='sine';o.frequency.value=1500;
+  o.connect(g);g.connect(ac.destination);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.22,t+0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
+  o.start(t);o.stop(t+0.1);
+}
+var wl=null;
+function lock(){try{if(navigator.wakeLock&&navigator.wakeLock.request)navigator.wakeLock.request('screen').then(function(w){wl=w}).catch(function(){})}catch(e){}}
+function releaseLock(){try{if(wl)wl.release()}catch(e){}wl=null}
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&T.running)T.end=Date.now()+T.remain*1000});
+
+cards.addEventListener('click',function(e){
+  var tw=e.target.closest('.timer');if(!tw)return;
+  var i=+tw.dataset.step;
+  if(e.target.closest('.t-reset')){
+    if(T.i===i){T.i=-1;T.running=false;T.finished=false;stopTick();releaseLock()}
+    paint();return;
+  }
+  if(e.target.closest('.t-start')){
+    if(T.i===i&&T.running){ /* пауза */
+      T.remain=(T.end-Date.now())/1000;T.running=false;stopTick();releaseLock();
+    }else if(T.i===i&&!T.finished&&T.remain>0&&T.remain<STEPS[i].sec){ /* продолжить */
+      T.running=true;T.end=Date.now()+T.remain*1000;tick();lock();
+    }else{ /* новый старт */
+      T.i=i;T.total=STEPS[i].sec;T.remain=T.total;T.end=Date.now()+T.total*1000;
+      T.running=true;T.finished=false;tick();lock();
+    }
+    paint();
+  }
+});
+function tick(){
+  stopTick();
+  T.int=setInterval(function(){
+    if(!T.running)return;
+    T.remain=(T.end-Date.now())/1000;
+    if(T.remain<=0){T.remain=0;finish()}
+    paint();
+  },400);
+}
+pill.addEventListener('click',function(){
+  if(T.finished){T.i=-1;T.finished=false;paint();return}
+  var tw=$('.timer[data-step="'+T.i+'"]');if(tw)tw.scrollIntoView({behavior:'smooth',block:'center'})
+});
+
+/* ── порции ── */
+var portions=ls('portions',4);
+function setPortions(p){
+  portions=p;sv('portions',p);
+  $$('.seg button').forEach(function(b){b.classList.toggle('on',+b.dataset.p===p)});
+  $$('.amt').forEach(function(a){a.textContent=a.getAttribute('data-p'+p)});
+}
+$$('.seg button').forEach(function(b){b.addEventListener('click',function(){setPortions(+b.dataset.p)})});
+
+/* ── ингредиенты ── */
+var ingDone=new Set(ls('ing',[]));
+var ingBoxes=$$('#ing-list input');
+function ingCount(){
+  $('#ing-count').textContent='собрано '+ingDone.size+' из '+ingBoxes.length;
+}
+ingBoxes.forEach(function(c,i){
+  c.checked=ingDone.has(i);
+  c.addEventListener('change',function(){
+    if(c.checked)ingDone.add(i);else ingDone.delete(i);
+    sv('ing',[].concat(ingDone));ingCount();
+  });
+});
+
+setPortions(portions);ingCount();show(cur,false);paint();
+</script>
