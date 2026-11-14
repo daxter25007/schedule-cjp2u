@@ -221,6 +221,35 @@ button,.seg button,.rail button,.ing{touch-action:manipulation}
   .hero-grid{gap:12px}
   h1{font-size:clamp(32px,8.6vw,44px)}
 }
+/* ── режим у плиты: взглянул — понял ── */
+.sc-short{list-style:none;padding:0;margin:16px 0 0;display:none}
+#kitchen-exit{display:none}
+body.kitchen .sc-short{display:grid;gap:16px}
+body.kitchen .sc-body,body.kitchen .tip,body.kitchen .t-hint,
+body.kitchen .hero-grid,body.kitchen #hearts,body.kitchen #ing,body.kitchen #faq,
+body.kitchen footer.site,body.kitchen #steps>.eyebrow,body.kitchen #steps>h2,
+body.kitchen #s-reset{display:none}
+body.kitchen #kitchen-exit{display:inline-block}
+body.kitchen main{gap:0}
+body.kitchen .step-card{padding:22px 16px}
+body.kitchen .sc-num{font-size:22px;color:var(--accent)}
+body.kitchen .sc-head h3{font-size:clamp(30px,8.4vw,42px);line-height:1.12}
+body.kitchen .time-chip{font-size:16px;padding:10px 16px}
+body.kitchen .sc-short li{position:relative;padding-left:34px;font-size:clamp(22px,6.2vw,28px);font-weight:600;line-height:1.3}
+body.kitchen .sc-short li::before{content:"";position:absolute;left:2px;top:.5em;width:14px;height:14px;border-radius:50%;background:var(--hearts)}
+body.kitchen .timer{flex-direction:column;gap:16px;padding:22px 14px}
+body.kitchen .t-ring{width:198px;height:198px;margin:0 auto}
+body.kitchen .t-ring svg{width:198px;height:198px}
+body.kitchen .t-num{font-size:54px}
+body.kitchen .t-side{width:100%;display:flex;flex-direction:column;align-items:center}
+body.kitchen .t-label{display:none}
+body.kitchen .t-btns{width:100%;margin-top:6px}
+body.kitchen .t-btns .btn{flex:1;min-height:64px;font-size:19px}
+body.kitchen .sc-nav{gap:12px;margin-top:24px}
+body.kitchen .sc-nav .btn{min-height:64px;font-size:19px}
+body.kitchen .sc-nav .grow{flex:2}
+body.kitchen .rail button{width:56px;height:56px;font-size:18px}
+body.kitchen .steps-meta{justify-content:center}
 @media (prefers-reduced-motion: reduce){
   .flame,.steam{animation:none}
   .steam{opacity:.35}
@@ -245,7 +274,7 @@ button,.seg button,.rail button,.ing{touch-action:manipulation}
     <p class="lead">Не узбекский плов, а честный аля-плов: рис, морковь, зирвак и главная задача — <b style="color:var(--ink)">сердечки без резины</b>. Лук и чеснок нужны, и страница объяснит, зачем.</p>
     <p style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px">
       <a class="btn btn-primary" href="#steps">К шагам</a>
-      <a class="btn" href="#hearts">Почему резина — и как её избежать</a>
+      <button class="btn" data-kitchen>У плиты — коротко и крупно</button>
     </p>
     <p class="hero-note" style="margin-top:16px">Таймеры работают прямо на странице — с негромким стуком в конце.</p>
   </div>
@@ -346,6 +375,7 @@ button,.seg button,.rail button,.ing{touch-action:manipulation}
   <div class="steps-meta">
     <span id="s-count" style="color:var(--muted);font-size:15px">шаг 1 из 8 · <b id="s-name" style="color:var(--ink)">подготовка</b></span>
     <button class="linklike" id="s-reset">начать заново</button>
+    <button class="linklike" id="kitchen-exit" data-kitchen>← полный рецепт</button>
   </div>
   <div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0" id="pbar"><i id="pfill"></i></div>
   <div class="rail" id="rail" role="tablist" aria-label="Шаги"></div>
@@ -432,6 +462,16 @@ var STEPS=[
   tip:'Финальная проверка: разрежь сердечко пополам — сочное и легко жуётся? Значит, всё сделано правильно.'}
 ];
 
+var SHORT=[
+ ['Рис: промыть, замочить','Сердечки: обрезать, пополам, вымыть кровь','Морковь — соломка. Лук — полукольца','Чеснок: срезать макушку'],
+ ['Масло. Средне-сильный огонь','Лук — до золотого'],
+ ['Обсуши полотенцем','Сильный огонь · 3–4 минуты','До корочки. Не дольше'],
+ ['Морковь в казан','Помешивать 5 минут'],
+ ['Кипяток: на 1 см выше','Приправа + соль','Слабый огонь, томить'],
+ ['Рис сверху. НЕ мешать','Кипяток: на 2 пальца выше риса','Чеснок — в центр','Сильный огонь, до кратеров'],
+ ['Рис горкой. Проколы до дна','Крышка. Минимальный огонь'],
+ ['Выключить огонь','10 минут не открывать','Перемешать, подать']
+];
 var cur=ls('step',0), done=new Set(ls('done',[]));
 if(cur<0||cur>=STEPS.length)cur=0;
 
@@ -439,6 +479,7 @@ if(cur<0||cur>=STEPS.length)cur=0;
 var cards=$('#cards');
 STEPS.forEach(function(s,i){
   var lis=s.body.map(function(b){return '<li>'+b+'</li>'}).join('');
+  var sh=SHORT[i].map(function(x){return '<li>'+x+'</li>'}).join('');
   var last=i===STEPS.length-1;
   var nextBtn=last
     ?'<button class="btn btn-primary" id="finish-btn">Приятного аппетита — сбросить и готовить снова</button>'
@@ -449,6 +490,7 @@ STEPS.forEach(function(s,i){
    '<div class="sc-head"><span class="sc-num">'+(i+1)+'</span><h3>'+s.t+'</h3>'+
    '<span class="time-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/></svg>'+s.time+'</span></div>'+
    '<ul class="sc-body">'+lis+'</ul>'+
+   '<ul class="sc-short">'+sh+'</ul>'+
    '<div class="tip"><span class="eyebrow">совет</span>'+s.tip+'</div>'+
    '<div class="timer" data-step="'+i+'">'+
      '<div class="t-ring"><svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" cx="60" cy="60" r="52"/></svg><div class="t-num">'+fmt(s.sec)+'</div></div>'+
@@ -634,6 +676,9 @@ ingBoxes.forEach(function(c,i){
   });
 });
 
+function setKitchen(on){document.body.classList.toggle('kitchen',on);sv('kitchen',on);if(on)$('#steps').scrollIntoView({behavior:'smooth'})}
+$$('[data-kitchen]').forEach(function(b){b.addEventListener('click',function(){setKitchen(!document.body.classList.contains('kitchen'))})});
+if(ls('kitchen',false))document.body.classList.add('kitchen');
 setPortions(portions);ingCount();show(cur,false);paint();
 </script>
 </body>
